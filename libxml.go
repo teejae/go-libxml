@@ -21,11 +21,12 @@ package libxml
 #include <libxml/xmlstring.h>
 
 char* xmlChar2C(xmlChar* x) { return (char *) x; }
-xmlNode * NodeNext(xmlNode *node) { return node->next; }
-xmlNode * NodeChildren(xmlNode *node) { return node->children; }
-int NodeType(xmlNode *node) { return (int)node->type; }
 */
 import "C"
+
+import (
+	"unsafe"
+)
 
 const (
 	//parser option
@@ -74,11 +75,19 @@ func (n *XmlNode) Type() int {
 }
 
 func (n *XmlNode) Next() *XmlNode {
-	return &XmlNode{Ptr: C.NodeNext(node)}
+	next := (*C.xmlNode)(unsafe.Pointer(n.Ptr.next))
+	if next == nil {
+		return nil
+	}
+	return &XmlNode{Ptr: next}
 }
 
 func (n *XmlNode) Children() *XmlNode {
-	return &XmlNode{Ptr: C.NodeChildren(n.Ptr)}
+	children := (*C.xmlNode)(unsafe.Pointer(n.Ptr.children))
+	if children == nil {
+		return nil
+	}
+	return &XmlNode{Ptr: children}
 }
 
 type XmlDoc struct {
@@ -140,39 +149,3 @@ func HtmlEntityValueLookup(value uint) *C.htmlEntityDesc {
 //Helpers
 func NewDoc() (doc *C.xmlDoc)    { return }
 func NewNode() (node *C.xmlNode) { return }
-
-// // Usage Example
-// // -----------------------
-
-// func ParseHTML(src string) bool {
-//     d := libxml.HtmlReadDoc(src, "", "",
-//         libxml.HTML_PARSE_COMPACT | libxml.HTML_PARSE_NOBLANKS |
-//         libxml.HTML_PARSE_NOERROR | libxml.HTML_PARSE_NOWARNING)
-
-//     defer libxml.XmlFreeDoc(d) //free doc on exit
-
-//     //get root node
-//     root := libxml.XmlDocGetRootElement(d);
-//     if root == nil { return false } //no nodes
-
-//     //traverse tree
-//     var n libxml.XmlNode; n.Ptr = root
-//     NextNode(&n)
-
-//     return true
-// }
-
-// func NextNode(node *libxml.XmlNode) {
-//     var curNode libxml.XmlNode
-//     var childNode libxml.XmlNode
-
-//     for curNode.Ptr = node.Ptr; curNode.Ptr != nil; curNode.Ptr =
-// libxml.NodeNext(curNode.Ptr) {
-//         //Do something here...
-//         fmt.Println("NODE > ", libxml.NodeName(curNode.Ptr), " TYPE > ",
-// libxml.NodeType(curNode.Ptr))
-
-//         childNode.Ptr = libxml.NodeChildren(curNode.Ptr)
-//         NextNode(&childNode)
-//     }
-// }

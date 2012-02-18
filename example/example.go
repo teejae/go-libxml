@@ -30,8 +30,7 @@ func ParseHTML(src string) bool {
 func NextNode(node *libxml.XmlNode) {
     var curNode *libxml.XmlNode
 
-    for curNode = node; curNode.Ptr != nil; curNode.Ptr =
-libxml.NodeNext(curNode.Ptr) {
+    for curNode = node; curNode != nil; curNode = curNode.Next() {
         //Do something here...
         fmt.Println("NODE > ", curNode.Name(), " TYPE > ",
 curNode.Type())
