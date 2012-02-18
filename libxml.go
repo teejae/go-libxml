@@ -61,8 +61,21 @@ const (
 	XML_DOCB_DOCUMENT_NODE = 21
 )
 
+func freeCString(s *C.char) {
+	C.free(unsafe.Pointer(s))
+}
+
 func xmlCharToString(s *C.xmlChar) string {
-	return C.GoString((*C.char)(unsafe.Pointer(s)))
+	cstr := unsafe.Pointer(s)
+	str := C.GoString((*C.char)(cstr))
+	return str
+}
+
+func stringToXmlChar(s string) *C.xmlChar {
+	cstr := C.CString(s)
+	defer freeCString(cstr)
+	c := C.xmlCharStrdup(cstr)
+	return c
 }
 
 type XmlNode struct {
@@ -103,6 +116,11 @@ func (n *XmlNode) Text() string {
 	}
 
 	return xmlCharToString(C.xmlNodeListGetString(nil, n.Ptr, 0))
+}
+
+func (n *XmlNode) Attr(name string) string {
+	xname := stringToXmlChar(name)
+	return xmlCharToString(C.xmlGetProp(n.Ptr, xname))
 }
 
 type XmlDoc struct {
