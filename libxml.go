@@ -1,7 +1,12 @@
-/*
-Original Source before edits:
-https://groups.google.com/group/golang-nuts/browse_thread/thread/d8b220af6fdb7075
-*/
+// This work is subject to the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+// license. Its contents can be found at:
+// http://creativecommons.org/publicdomain/zero/1.0/
+
+// Original Source before edits:
+// https://groups.google.com/group/golang-nuts/browse_thread/thread/d8b220af6fdb7075
+
+// Package libxml provides access libxml2, an XML parsing library, found here:
+// http://xmlsoft.org/
 package libxml
 
 /*
