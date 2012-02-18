@@ -28,16 +28,14 @@ func ParseHTML(src string) bool {
 }
 
 func NextNode(node *libxml.XmlNode) {
-    var curNode libxml.XmlNode
-    var childNode libxml.XmlNode
+    var curNode *libxml.XmlNode
 
-    for curNode.Ptr = node.Ptr; curNode.Ptr != nil; curNode.Ptr =
+    for curNode = node; curNode.Ptr != nil; curNode.Ptr =
 libxml.NodeNext(curNode.Ptr) {
         //Do something here...
         fmt.Println("NODE > ", curNode.Name(), " TYPE > ",
 curNode.Type())
 
-        childNode.Ptr = libxml.NodeChildren(curNode.Ptr)
-        NextNode(&childNode)
+        NextNode(curNode.Children())
     }
 }

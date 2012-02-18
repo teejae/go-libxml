@@ -73,6 +73,14 @@ func (n *XmlNode) Type() int {
 	return int(n.Ptr._type)
 }
 
+func (n *XmlNode) Next() *XmlNode {
+	return &XmlNode{Ptr: C.NodeNext(node)}
+}
+
+func (n *XmlNode) Children() *XmlNode {
+	return &XmlNode{Ptr: C.NodeChildren(n.Ptr)}
+}
+
 type XmlDoc struct {
 	Ptr *C.xmlDoc
 }
@@ -132,12 +140,6 @@ func HtmlEntityValueLookup(value uint) *C.htmlEntityDesc {
 //Helpers
 func NewDoc() (doc *C.xmlDoc)    { return }
 func NewNode() (node *C.xmlNode) { return }
-func NodeNext(node *C.xmlNode) *C.xmlNode {
-	return C.NodeNext(node)
-}
-func NodeChildren(node *C.xmlNode) *C.xmlNode {
-	return C.NodeChildren(node)
-}
 
 // // Usage Example
 // // -----------------------
