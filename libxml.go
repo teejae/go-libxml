@@ -1,8 +1,4 @@
-// This work is subject to the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
-// license. Its contents can be found at:
-// http://creativecommons.org/publicdomain/zero/1.0/
-
-// Original Source before edits:
+// Thanks to the following mail thread for the original impetus:
 // https://groups.google.com/group/golang-nuts/browse_thread/thread/d8b220af6fdb7075
 
 // Package libxml provides access libxml2, an XML parsing library, found here:
@@ -188,6 +184,18 @@ func (n *XmlNode) Attrs() map[string]string {
 
 	n.attrs = attrs
 	return attrs
+}
+
+func (n *XmlNode) XPath(xpathExpr string) *XPathResult {
+	context := C.xmlXPathNewContext((C.xmlDocPtr)(unsafe.Pointer(n.Ptr.doc)))
+	context.node = n.Ptr
+	defer C.xmlXPathFreeContext(context)
+
+	result := C.xmlXPathEvalExpression(stringToXmlChar(xpathExpr), context)
+
+	fmt.Println("XPath: ", xpathExpr, " Type: ", result._type, " Result: ", result)
+
+	return &XPathResult{ptr: result}
 }
 
 type XmlDoc struct {
