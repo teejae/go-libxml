@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-    ParseHTML("<html><body><div id='boo'>hey</div></body></html>")
+    ParseHTML("<html><body><div id='boo'>hey<span>some span text</span></div></body></html>")
     ParseHTML("")
 }
 
@@ -14,6 +14,7 @@ func ParseHTML(src string) bool {
     doc, err := libxml.ParseHTML(src)
     if err != nil {
         fmt.Println(err)
+        return false
     }
     TraverseNode(doc.Root())
 
@@ -28,7 +29,7 @@ func TraverseNode(node *libxml.XmlNode) {
     for curNode = node; curNode != nil; curNode = curNode.Next() {
         //Do something here...
         fmt.Println("NODE > ", curNode.Name(), " TYPE > ",
-curNode.Type())
+curNode.Type(), " TEXT > ", curNode.Text())
 
         TraverseNode(curNode.Children())
     }

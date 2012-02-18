@@ -93,6 +93,18 @@ func (n *XmlNode) Children() *XmlNode {
 	return &XmlNode{Ptr: children}
 }
 
+func (n *XmlNode) IsText() bool {
+	return C.xmlNodeIsText(n.Ptr) != 0
+}
+
+func (n *XmlNode) Text() string {
+	if !n.IsText() {
+		return ""
+	}
+
+	return xmlCharToString(C.xmlNodeListGetString(nil, n.Ptr, 0))
+}
+
 type XmlDoc struct {
 	Ptr  *C.xmlDoc
 	root *C.xmlNode
