@@ -23,6 +23,7 @@ package libxml
 import "C"
 
 import (
+	"errors"
 	"unsafe"
 )
 
@@ -93,7 +94,37 @@ func (n *XmlNode) Children() *XmlNode {
 }
 
 type XmlDoc struct {
-	Ptr *C.xmlDoc
+	Ptr  *C.xmlDoc
+	root *C.xmlNode
+}
+
+func (d *XmlDoc) Root() *XmlNode {
+	return &XmlNode{Ptr: d.root}
+}
+
+func (d *XmlDoc) Close() error {
+	XmlFreeDoc(d.Ptr)
+	d.Ptr = nil
+	d.root = nil
+
+	return nil
+}
+
+const DEFAULT_HTML_PARSE_FLAGS = HTML_PARSE_COMPACT | HTML_PARSE_NOBLANKS |
+	HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING
+
+func ParseHTML(src string) (*XmlDoc, error) {
+	d := HtmlReadDoc(src, "", "", DEFAULT_HTML_PARSE_FLAGS)
+
+	//get root node
+	root := XmlDocGetRootElement(d)
+	if root == nil {
+		//no nodes
+		XmlFreeDoc(d)
+		return nil, errors.New("No nodes")
+	}
+
+	return &XmlDoc{Ptr: d, root: root}, nil
 }
 
 func XmlCheckVersion() int {
