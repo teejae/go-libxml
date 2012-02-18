@@ -1,13 +1,40 @@
 package main
 
 import (
+    "flag"
     "fmt"
+    "io/ioutil"
     "libxml"
+    "os"
 )
 
+var filename *string = flag.String("file", "", "File to parse")
+
 func main() {
-    ParseHTML("<html><body some_attr='b'><div id='boo'>hey<span class='boo'>some span text</span></div></body></html>")
-    ParseHTML("")
+    flag.Parse()
+
+    if *filename != "" {
+        ParseFile(*filename)
+    } else {
+        ParseHTML("<html><body some_attr='b'><div id='boo'>hey<span class='boo'>some span text</span></div></body></html>")
+        ParseHTML("")
+    }
+}
+
+func ParseFile(filename string) {
+    f, err := os.Open(filename)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    buf, err := ioutil.ReadAll(f)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    ParseHTML(string(buf))
 }
 
 func ParseHTML(src string) bool {
