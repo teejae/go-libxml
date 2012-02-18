@@ -16,9 +16,8 @@ func ParseHTML(src string) bool {
         fmt.Println(err)
         return false
     }
+    defer doc.Close()
     TraverseNode(doc.Root())
-
-    doc.Close()
 
     return true
 }
