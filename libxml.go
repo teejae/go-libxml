@@ -19,11 +19,17 @@ package libxml
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/xmlstring.h>
+#include <libxml/xpath.h>
+
+xmlNodePtr nodeSetGetItem(xmlNodeSetPtr ns, int n) {
+	return xmlXPathNodeSetItem(ns, n);
+}
 */
 import "C"
 
 import (
 	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -59,6 +65,47 @@ const (
 	XML_XINCLUDE_START     = 19
 	XML_XINCLUDE_END       = 20
 	XML_DOCB_DOCUMENT_NODE = 21
+)
+
+const (
+	// enum xmlXPathObjectType:
+	XPATH_UNDEFINED = iota
+	XPATH_NODESET
+	XPATH_BOOLEAN
+	XPATH_NUMBER
+	XPATH_STRING
+	XPATH_POINT
+	XPATH_RANGE
+	XPATH_LOCATIONSET
+	XPATH_USERS
+	XPATH_XSLT_TREE
+)
+
+const (
+	// enum xmlXPathError:
+	XPATH_EXPRESSION_OK = iota
+	XPATH_NUMBER_ERROR
+	XPATH_UNFINISHED_LITERAL_ERROR
+	XPATH_START_LITERAL_ERROR
+	XPATH_VARIABLE_REF_ERROR
+	XPATH_UNDEF_VARIABLE_ERROR
+	XPATH_INVALID_PREDICATE_ERROR
+	XPATH_EXPR_ERROR
+	XPATH_UNCLOSED_ERROR
+	XPATH_UNKNOWN_FUNC_ERROR
+	XPATH_INVALID_OPERAND
+	XPATH_INVALID_TYPE
+	XPATH_INVALID_ARITY
+	XPATH_INVALID_CTXT_SIZE
+	XPATH_INVALID_CTXT_POSITION
+	XPATH_MEMORY_ERROR
+	XPTR_SYNTAX_ERROR
+	XPTR_RESOURCE_ERROR
+	XPTR_SUB_RESOURCE_ERROR
+	XPATH_UNDEF_PREFIX_ERROR
+	XPATH_ENCODING_ERROR
+	XPATH_INVALID_CHAR_ERROR
+	XPATH_INVALID_CTXT
 )
 
 func freeCString(s *C.char) {
@@ -152,12 +199,58 @@ func (d *XmlDoc) Root() *XmlNode {
 	return &XmlNode{Ptr: d.root}
 }
 
+func (d *XmlDoc) XPath(xpathExpr string) *XPathResult {
+	context := C.xmlXPathNewContext(d.Ptr)
+	defer C.xmlXPathFreeContext(context)
+
+	result := C.xmlXPathEvalExpression(stringToXmlChar(xpathExpr), context)
+
+	fmt.Println("XPath: ", xpathExpr, " Type: ", result._type, " Result: ", result)
+
+	return &XPathResult{ptr: result}
+}
+
 func (d *XmlDoc) Close() error {
 	XmlFreeDoc(d.Ptr)
 	d.Ptr = nil
 	d.root = nil
 
 	return nil
+}
+
+type XPathResult struct {
+	ptr C.xmlXPathObjectPtr
+}
+
+func (r *XPathResult) Type() uint {
+	return uint(r.ptr._type)
+}
+
+func (r *XPathResult) Nodes() []*XmlNode {
+	if r.Type() != XPATH_NODESET {
+		return nil
+	}
+
+	nodeSet := r.ptr.nodesetval
+	fmt.Println("nodeSet: ", nodeSet)
+
+	nodeSetLen := int(nodeSet.nodeNr)
+	fmt.Println("nodeSetLen: ", nodeSetLen)
+	nodes := make([]*XmlNode, nodeSetLen)
+
+	for i := 0; i < nodeSetLen; i++ {
+		node := C.nodeSetGetItem(nodeSet, C.int(i))
+		nodes[i] = &XmlNode{Ptr: node}
+	}
+
+	return nodes
+}
+
+func (r *XPathResult) String() string {
+	if r.Type() != XPATH_STRING {
+		return ""
+	}
+	return xmlCharToString(C.xmlXPathCastToString(r.ptr))
 }
 
 const DEFAULT_HTML_PARSE_FLAGS = HTML_PARSE_COMPACT | HTML_PARSE_NOBLANKS |
