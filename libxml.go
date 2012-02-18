@@ -19,8 +19,6 @@ package libxml
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/xmlstring.h>
-
-char* xmlChar2C(xmlChar* x) { return (char *) x; }
 */
 import "C"
 
@@ -62,12 +60,16 @@ const (
 	XML_DOCB_DOCUMENT_NODE = 21
 )
 
+func xmlCharToString(s *C.xmlChar) string {
+	return C.GoString((*C.char)(unsafe.Pointer(s)))
+}
+
 type XmlNode struct {
 	Ptr *C.xmlNode
 }
 
 func (n *XmlNode) Name() string {
-	return C.GoString(C.xmlChar2C(n.Ptr.name))
+	return xmlCharToString(n.Ptr.name)
 }
 
 func (n *XmlNode) Type() int {
@@ -119,7 +121,7 @@ func HtmlReadDoc(content string, url string, encoding string, opts int) *C.xmlDo
 
 func HtmlGetMetaEncoding(d *C.xmlDoc) string {
 	s := C.htmlGetMetaEncoding(d)
-	return C.GoString(C.xmlChar2C(s))
+	return xmlCharToString(s)
 }
 
 func XmlDocGetRootElement(d *C.xmlDoc) *C.xmlNode {
@@ -129,7 +131,7 @@ func XmlDocGetRootElement(d *C.xmlDoc) *C.xmlNode {
 func XmlGetProp(n *C.xmlNode, name string) string {
 	c := C.xmlCharStrdup(C.CString(name))
 	s := C.xmlGetProp(n, c)
-	return C.GoString(C.xmlChar2C(s))
+	return xmlCharToString(s)
 }
 
 func HtmlTagLookup(name string) *C.htmlElemDesc {
