@@ -248,9 +248,23 @@ func (r *XPathResult) Nodes() []*XmlNode {
 
 func (r *XPathResult) String() string {
 	if r.Type() != XPATH_STRING {
-		return ""
+		panic("libxml: Not a string")
 	}
 	return xmlCharToString(C.xmlXPathCastToString(r.ptr))
+}
+
+func (r *XPathResult) Number() float64 {
+	if r.Type() != XPATH_NUMBER {
+		panic("libxml: Not a number")
+	}
+	return float64(C.xmlXPathCastToNumber(r.ptr))
+}
+
+func (r *XPathResult) Boolean() bool {
+	if r.Type() != XPATH_BOOLEAN {
+		panic("libxml: Not a boolean")
+	}
+	return C.xmlXPathCastToBoolean(r.ptr) != 0
 }
 
 const DEFAULT_HTML_PARSE_FLAGS = HTML_PARSE_COMPACT | HTML_PARSE_NOBLANKS |

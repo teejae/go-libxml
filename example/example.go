@@ -47,7 +47,7 @@ func ParseHTML(src string) bool {
 	defer doc.Close()
 	TraverseNode(doc.Root())
 
-	result := doc.XPath("//div")
+	result := doc.XPath("string(//div/*)")
 	nodes := result.Nodes()
 
 	for _, n := range nodes {
