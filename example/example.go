@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-    ParseHTML("<html><body some_attr='b'><div id='boo'>hey<span>some span text</span></div></body></html>")
+    ParseHTML("<html><body some_attr='b'><div id='boo'>hey<span class='boo'>some span text</span></div></body></html>")
     ParseHTML("")
 }
 
@@ -28,7 +28,7 @@ func TraverseNode(node *libxml.XmlNode) {
     for curNode = node; curNode != nil; curNode = curNode.Next() {
         //Do something here...
         fmt.Println("NODE > ", curNode.Name(), " TYPE > ",
-curNode.Type(), " TEXT > ", curNode.Text(), " SOMEATTR > ", curNode.Attr("some_attr"))
+curNode.Type(), " TEXT > ", curNode.Text(), " SOMEATTR > ", curNode.Attr("some_attr"), "ATTRS > ", curNode.Attrs())
 
         TraverseNode(curNode.Children())
     }

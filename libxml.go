@@ -80,6 +80,9 @@ func stringToXmlChar(s string) *C.xmlChar {
 
 type XmlNode struct {
 	Ptr *C.xmlNode
+
+	// cached attrs
+	attrs map[string]string
 }
 
 func (n *XmlNode) Name() string {
@@ -121,6 +124,23 @@ func (n *XmlNode) Text() string {
 func (n *XmlNode) Attr(name string) string {
 	xname := stringToXmlChar(name)
 	return xmlCharToString(C.xmlGetProp(n.Ptr, xname))
+}
+
+func (n *XmlNode) Attrs() map[string]string {
+	if n.attrs != nil {
+		return n.attrs
+	}
+	propList := n.Ptr.properties
+
+	attrs := make(map[string]string)
+
+	for prop := propList; prop != nil; prop = prop.next {
+		name := xmlCharToString(prop.name)
+		attrs[name] = n.Attr(name)
+	}
+
+	n.attrs = attrs
+	return attrs
 }
 
 type XmlDoc struct {
