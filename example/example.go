@@ -34,8 +34,8 @@ func NextNode(node *libxml.XmlNode) {
     for curNode.Ptr = node.Ptr; curNode.Ptr != nil; curNode.Ptr =
 libxml.NodeNext(curNode.Ptr) {
         //Do something here...
-        fmt.Println("NODE > ", libxml.NodeName(curNode.Ptr), " TYPE > ",
-libxml.NodeType(curNode.Ptr))
+        fmt.Println("NODE > ", curNode.Name(), " TYPE > ",
+curNode.Type())
 
         childNode.Ptr = libxml.NodeChildren(curNode.Ptr)
         NextNode(&childNode)

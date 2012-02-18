@@ -65,6 +65,14 @@ type XmlNode struct {
 	Ptr *C.xmlNode
 }
 
+func (n *XmlNode) Name() string {
+	return C.GoString(C.xmlChar2C(n.Ptr.name))
+}
+
+func (n *XmlNode) Type() int {
+	return int(n.Ptr._type)
+}
+
 type XmlDoc struct {
 	Ptr *C.xmlDoc
 }
@@ -129,12 +137,6 @@ func NodeNext(node *C.xmlNode) *C.xmlNode {
 }
 func NodeChildren(node *C.xmlNode) *C.xmlNode {
 	return C.NodeChildren(node)
-}
-func NodeName(node *C.xmlNode) string {
-	return C.GoString(C.xmlChar2C(node.name))
-}
-func NodeType(node *C.xmlNode) int {
-	return int(C.NodeType(node))
 }
 
 // // Usage Example
